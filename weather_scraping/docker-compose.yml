@@ -1,0 +1,86 @@
+version: '3.9'
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Docker/web/Dockerfile
+    command:
+      - /bin/sh
+      - -c
+      - |
+        python manage.py collectstatic --noinput
+        python manage.py makemigrations
+        python manage.py migrate
+        echo "WEB: Migrations process done ..."
+        python manage.py runserver 0.0.0.0:8000
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/weather_scraping
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis_app
+      - worker
+      - beat
+
+  db:
+    image: postgres:16.1
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - .env
+    ports:
+      - 5433:5432  # local port : container port
+    expose:
+      - 5432
+
+  redis_app:
+    image: redis:7.2.4
+    ports:
+      - 6379:6379
+    expose:
+      - 6379
+
+
+  worker: # make task immediately
+    build:
+      context: .
+      dockerfile:
+        Docker/celery/Dockerfile
+    volumes:
+      - ./:/worker
+    command: celery -A celery_app.celery worker -l info
+    env_file:
+      - .env
+    depends_on:
+      - redis_app
+    environment:
+      - CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP=True
+
+  beat: # make task on schedule
+    build:
+      context: .
+      dockerfile:
+        Docker/celery/Dockerfile
+    volumes:
+      - ./:/beat
+    command: celery -A celery_app.celery beat -l info
+    env_file:
+      - .env
+    depends_on:
+      - redis_app
+    environment:
+      - CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP=True
+
+  adminer:
+    image: adminer:4.8.1
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - 8082:8080
+
+volumes:
+  postgres_data:
