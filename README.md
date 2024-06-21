@@ -14,26 +14,26 @@
 - За скрапінг і запит до сайту відповідає клас WeatherScraping.
 
 ## Запуск проекту 
-- git clone https://github.com/kolesnikdi/dZENcode.git
+- git clone https://github.com/kolesnikdi/Compassway.git
 - cd .\Compassway\weather_scraping
 - Скопіюй .env файл до \Compassway\weather_scraping
-- python manage.py createsuperuser
 - docker-compose up --build
+- необхідно створити суперюзера. Термінал Docker -> weather_scraping -> web-1 `python manage.py createsuperuser`
 - Запуск end-to-end тестів. Термінал Docker -> weather_scraping -> web-1 `pytest`
 
 
 ## Endpoints
 ### Негайний запит і скрапінг сайту
--  [update_weather](http://127.0.0.1:8000/weather/update/) 
+-  [update_weather](http://127.0.0.1:8000/weather/update) 
 Повертає дані за поточну дату +5 днів вперед.
 ### Перегляд останніх 6 записів про погоду
 - Звичайне відображення.
 [WeatherView](http://127.0.0.1:8000/weather/)
 - Відображення через адмін панель.
-[WeatherAdmin](http://127.0.0.1:8000/admin/weather/)
+[WeatherAdmin](http://127.0.0.1:8000/admin/weather/weather/)
 ### Зміна часу виконання запиту і скрапінгу сайту.
-- [UpdateTimeView](http://127.0.0.1:8000/weather/time_update/)
-### Перегляд завдвнь які виконуються.
+- [UpdateTimeView](http://127.0.0.1:8000/weather/time_update)
+### Перегляд завдань які виконуються.
 - Черга.
 [Scheduled](http://127.0.0.1:8000/admin/django_celery_beat/periodictask/)
 - Стан виконання.
